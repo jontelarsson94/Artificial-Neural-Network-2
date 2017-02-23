@@ -26,7 +26,7 @@ float outputOutput;
 float outputError;
 float hiddenError[3];
 
-const float learningRate = 0.1;
+const float learningRate = 0.05;
 
 void readData(string fileName)
 {
@@ -62,18 +62,18 @@ float RandomNumber(float Min, float Max)
 
 void initializeWeights()
 {
-    weightsToHidden[0][0] = RandomNumber(0.0, 1.0);
-    weightsToHidden[0][1] = RandomNumber(0.0, 1.0);
-    weightsToHidden[0][2] = RandomNumber(0.0, 1.0);
-    weightsToHidden[1][0] = RandomNumber(0.0, 1.0);
-    weightsToHidden[1][1] = RandomNumber(0.0, 1.0);
-    weightsToHidden[1][2] = RandomNumber(0.0, 1.0);
-    weightsToHidden[2][0] = RandomNumber(0.0, 1.0);
-    weightsToHidden[2][1] = RandomNumber(0.0, 1.0);
-    weightsToHidden[2][2] = RandomNumber(0.0, 1.0);
-    weightsToOutput[0] = RandomNumber(0.0, 1.0);
-    weightsToOutput[1] = RandomNumber(0.0, 1.0);
-    weightsToOutput[2] = RandomNumber(0.0, 1.0);
+    weightsToHidden[0][0] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[0][1] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[0][2] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[1][0] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[1][1] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[1][2] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[2][0] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[2][1] = RandomNumber(-0.1, 0.1);
+    weightsToHidden[2][2] = RandomNumber(-0.1, 0.1);
+    weightsToOutput[0] = RandomNumber(-0.1, 0.1);
+    weightsToOutput[1] = RandomNumber(-0.1, 0.1);
+    weightsToOutput[2] = RandomNumber(-0.1, 0.1);
 }
 
 float sigmoid(float net)
@@ -113,14 +113,26 @@ float calculateWeightToHidden(int i, int inputPos, int hiddenPos)
 
 int main(int argc, const char * argv[]) {
     
-    srand(NULL);
+    srand(time(NULL));
     readData("titanic.txt");
     initializeWeights();
-    float totalError = 0.0;
+    float totalError = 500.0;
+    float lastEpok = 1000.0;
     int epok = 0;
-    while(epok < 100000){
+    int turns = 0;
+    while(1){
+        
+        if(lastEpok == totalError/1500)
+            turns++;
+        else
+            turns = 0;
+        
+        if(turns == 10)
+            break;
+        
+        lastEpok = totalError/1500;
         epok++;
-        cout << "Error: " << totalError/1500 << " For epok: " << epok << endl;
+        cout << "Error: " << totalError/1500 << " For epoch: " << epok << endl;
         totalError = 0.0;
         for(int i = 0; i < 1500; i++) {
             
@@ -167,7 +179,7 @@ int main(int argc, const char * argv[]) {
         
         //Calculate output for output layer
         outputOutput = calculateOutputOutput();
-        cout << outputOutput << endl;
+        //cout << outputOutput << endl;
         if(expectedOutput[i] == 1.0){
             if(outputOutput >= 0.5)
                 correct++;
