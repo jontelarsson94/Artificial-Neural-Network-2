@@ -18,9 +18,9 @@ using namespace std;
 
 int numOfNeurons = 1500;
 float input[2200][3];
-float weightsToHidden[3][3];
-float hiddenOutputs[3];
-float weightsToOutput[3];
+float weightsToHidden[3][5];
+float hiddenOutputs[5];
+float weightsToOutput[5];
 float expectedOutput[2200];
 
 const float learningRate = 0.1;
@@ -58,15 +58,23 @@ void initializeWeights()
     weightsToHidden[0][0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[0][1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[0][2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[0][3] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[0][4] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[1][0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[1][1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[1][2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[1][3] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[1][4] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[2][0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[2][1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToHidden[2][2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[2][3] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToHidden[2][4] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToOutput[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToOutput[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     weightsToOutput[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToOutput[3] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    weightsToOutput[4] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
 float sigmoid(float net)
@@ -81,7 +89,7 @@ float calculateHiddenNet(int i, int j)
 
 float calculateOutputNet()
 {
-    return (hiddenOutputs[0] * weightsToOutput[0]) + (hiddenOutputs[1] * weightsToOutput[1]) + (hiddenOutputs[2] * weightsToOutput[2]);
+    return (hiddenOutputs[0] * weightsToOutput[0]) + (hiddenOutputs[1] * weightsToOutput[1]) + (hiddenOutputs[2] * weightsToOutput[2]) + (hiddenOutputs[3] * weightsToOutput[3]) + (hiddenOutputs[4] * weightsToOutput[4]);
 }
 
 float calculateOutputError(int i, float output)
@@ -111,47 +119,51 @@ int main(int argc, const char * argv[]) {
     initializeWeights();
     float net, output, outputError;
     float hiddenError[3];
+    float totalError = 1500;
     float worstOutput = 5.0;
     
-    for(int i = 0; i < 1500; i++) {
-        outputError = 5.0;
-        //Calculate output at hidden layer
-        for(int j = 0; j < 3; j++) {
-            net = calculateHiddenNet(i, j);
-            hiddenOutputs[j] = sigmoid(net);
-        }
-        
-        //Calculate output at output layer
-        net = calculateOutputNet();
-        output = sigmoid(net);
-        
-        //calculate error at output layer
-        outputError = calculateOutputError(i, output);
-        
-        if(outputError > worstOutput)
-            worstOutput = outputError;
-        
-        
-        //calculate error at hidden layer
-        for(int j = 0; j < 3; j++) {
-            hiddenError[j] = calculateHiddenError(j, outputError);
-        }
-        
-        //calculate new weights for paths from hidden to output
-        //Better if accumulating then just setting
-        for(int j = 0; j < 3; j++) {
-            weightsToOutput[j] += calculateWeightToOutput(j, outputError);
-        }
-        
-        //calculate new weights for paths from input to hidden
-        //Better if accumulating than just setting
-        for(int j = 0; j < 3; j++) {
-            for(int k = 0; k < 3; k++) {
-                weightsToHidden[k][j] += calculateWeightToHidden(i, k, hiddenError[j]);
+    while(1){
+        cout << totalError/1500 << endl;
+        if(totalError/1500 < 0.03589)
+            break;
+        totalError = 0.0;
+        for(int i = 0; i < 1500; i++) {
+            outputError = 5.0;
+            //Calculate output at hidden layer
+            for(int j = 0; j < 5; j++) {
+                net = calculateHiddenNet(i, j);
+                hiddenOutputs[j] = sigmoid(net);
+            }
+            
+            //Calculate output at output layer
+            net = calculateOutputNet();
+            output = sigmoid(net);
+            
+            //calculate error at output layer
+            outputError = calculateOutputError(i, output);
+            
+            totalError += abs(outputError);
+            
+            //calculate error at hidden layer
+            for(int j = 0; j < 3; j++) {
+                hiddenError[j] = calculateHiddenError(j, outputError);
+            }
+            
+            //calculate new weights for paths from hidden to output
+            //Better if accumulating then just setting
+            for(int j = 0; j < 5; j++) {
+                weightsToOutput[j] += calculateWeightToOutput(j, outputError);
+            }
+            
+            //calculate new weights for paths from input to hidden
+            //Better if accumulating than just setting
+            for(int j = 0; j < 5; j++) {
+                for(int k = 0; k < 3; k++) {
+                    weightsToHidden[k][j] += calculateWeightToHidden(i, k, hiddenError[j]);
+                }
             }
         }
     }
-    
     
     int correct = 0;
     int uncorrect = 0;
