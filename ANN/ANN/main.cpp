@@ -143,20 +143,15 @@ int main(int argc, const char * argv[]) {
             
             //Calculate new weights from hidden to output
             for(int j = 0; j < 3; j++){
-                weightsToOutput[j] = calculateWeightToOutput(j);
+                weightsToOutput[j] += calculateWeightToOutput(j);
             }
             
-            weightsToHidden[0][0] += calculateWeightToHidden(i, 0, 0);
-            weightsToHidden[1][0] += calculateWeightToHidden(i, 1, 0);
-            weightsToHidden[2][0] += calculateWeightToHidden(i, 2, 0);
-            weightsToHidden[0][1] += calculateWeightToHidden(i, 0, 1);
-            weightsToHidden[1][1] += calculateWeightToHidden(i, 1, 1);
-            weightsToHidden[2][1] += calculateWeightToHidden(i, 2, 1);
-            weightsToHidden[0][2] += calculateWeightToHidden(i, 0, 2);
-            weightsToHidden[1][2] += calculateWeightToHidden(i, 1, 2);
-            weightsToHidden[2][2] += calculateWeightToHidden(i, 2, 2);
-            
-            
+            //Calculate weights from input to hidden layer
+            for(int j = 0; j < 3; j++){
+                for(int k = 0; k < 3; k++){
+                    weightsToHidden[k][j] += calculateWeightToHidden(i, k, j);
+                }
+            }
         }
     }
     
@@ -172,18 +167,18 @@ int main(int argc, const char * argv[]) {
         
         //Calculate output for output layer
         outputOutput = calculateOutputOutput();
-        
+        cout << outputOutput << endl;
         if(expectedOutput[i] == 1.0){
             if(outputOutput >= 0.5)
                 correct++;
             else
                 uncorrect++;
-        } /*else{
+        } else{
             if(outputOutput < 0.5)
                 correct++;
             else
                 uncorrect++;
-        }*/
+        }
         
     }
     
